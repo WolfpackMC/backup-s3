@@ -99,7 +99,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     // Get the file name of the latest backup
-    let latest_backup_file_name = latest_backup_file.unwrap().file_name().into_string().unwrap();
+    let latest_backup_file_some = latest_backup_file.unwrap();
+    let latest_backup_file_name = latest_backup_file_some.file_name().into_string().unwrap();
+    let latest_backup_file_path = latest_backup_file_some.path();
 
     for object in resp.contents.unwrap() {
         if object.key().unwrap() == format!("backups/wolfpackmc-{}", latest_backup_file_name) {
@@ -135,7 +137,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    let body = ByteStream::from_path(latest_backup_c).await?;
+    let body = ByteStream::from_path(latest_backup_file_path).await?;
 
     println!("Uploading file: {}", latest_backup_file_name);
 
