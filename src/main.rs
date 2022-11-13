@@ -85,12 +85,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut saved_object: Option<Object> = None;
     let mut saved_last_modified: i64 = 0;
 
-    // Get the latest backup file
-    let latest_backup = std::fs::read_dir(config["backups"]["backups_folder"].as_str().unwrap()).unwrap().max_by_key(|entry| entry.as_ref().unwrap().path().metadata().unwrap().modified().unwrap()).unwrap().unwrap().path();
-    let latest_backup_c = latest_backup.clone();
+    // Get the latest backup file in config["backups"]["backups_folder"]
+    let mut latest_backup_file: Option<std::fs::DirEntry> = None;
+    let mut latest_backup_file_last_modified: u64 = 0;
+    for entry in std::fs::read_dir(config["backups"]["backups_folder"].as_str().unwrap())? {
+        let entry = entry?;
+        let metadata = entry.metadata()?;
+        let last_modified = metadata.modified().unwrap().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
+        if last_modified > latest_backup_file_last_modified {
+            latest_backup_file = Some(entry);
+            latest_backup_file_last_modified = last_modified;
+        }
+    }
 
     // Get the file name of the latest backup
-    let latest_backup_file_name = latest_backup.file_name().unwrap().to_str().unwrap();
+    let latest_backup_file_name = latest_backup_file.unwrap().file_name().into_string().unwrap();
 
     for object in resp.contents.unwrap() {
         if object.key().unwrap() == format!("backups/wolfpackmc-{}", latest_backup_file_name) {
