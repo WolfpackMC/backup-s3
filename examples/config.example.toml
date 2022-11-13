@@ -6,3 +6,4 @@ AWS_SECRET_ACCESS_KEY = "<secret here>"
 
 [backups]
 backups_folder = ""
+max_backup_size = 5000000000

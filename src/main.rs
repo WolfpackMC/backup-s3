@@ -4,7 +4,7 @@ use aws_sdk_s3::model::Object;
 use aws_sdk_s3::types::{ByteStream};
 use directories::ProjectDirs;
 
-const MAX_BACKUP_SIZE: i64 = 5_000_000_000;
+static mut MAX_BACKUP_SIZE: i64 = 5_000_000_000;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -52,6 +52,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         panic!("backups_folder is not set in the config file");
     } else {
         std::env::set_var("BACKUPS_FOLDER", config["backups"]["backups_folder"].as_str().unwrap());
+    }
+
+    if config["backups"]["max_backup_size"] != toml::Value::String("".to_string()) {
+        unsafe {
+            MAX_BACKUP_SIZE = config["backups"]["max_backup_size"].as_integer().unwrap();
+        }
     }
 
     if !std::path::Path::new(config["backups"]["backups_folder"].as_str().unwrap()).exists() {
