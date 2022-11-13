@@ -1,7 +1,7 @@
 use std::io::Read;
 use aws_config::meta::region::RegionProviderChain;
 use aws_sdk_s3::model::Object;
-use aws_sdk_s3::types::{ByteStream, DateTime};
+use aws_sdk_s3::types::{ByteStream};
 use directories::ProjectDirs;
 
 const MAX_BACKUP_SIZE: i64 = 5_000_000_000;
@@ -88,6 +88,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Get the latest backup file in config["backups"]["backups_folder"]
     let mut latest_backup_file: Option<std::fs::DirEntry> = None;
     let mut latest_backup_file_last_modified: u64 = 0;
+
     for entry in std::fs::read_dir(config["backups"]["backups_folder"].as_str().unwrap())? {
         let entry = entry?;
         if !entry.file_name().to_str().unwrap().ends_with(".zip") {
