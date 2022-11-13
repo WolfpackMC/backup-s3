@@ -90,6 +90,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut latest_backup_file_last_modified: u64 = 0;
     for entry in std::fs::read_dir(config["backups"]["backups_folder"].as_str().unwrap())? {
         let entry = entry?;
+        if !entry.file_name().to_str().unwrap().ends_with(".zip") {
+            continue;
+        }
         let metadata = entry.metadata()?;
         let last_modified = metadata.modified().unwrap().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
         if last_modified > latest_backup_file_last_modified {
