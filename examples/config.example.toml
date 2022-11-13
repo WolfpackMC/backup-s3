@@ -1,0 +1,8 @@
+# Rename this file to config.toml to enable it.
+
+[aws]
+AWS_ACCESS_KEY_ID = "<key here>"
+AWS_SECRET_ACCESS_KEY = "<secret here>"
+
+[backups]
+backups_folder = ""

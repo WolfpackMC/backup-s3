@@ -1,0 +1,13 @@
+[package]
+name = "backup-s3"
+version = "0.0.1"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+directories = "4.0.1"
+toml = "0.5.9"
+aws-config = "0.51.0"
+aws-sdk-s3 = "0.21.0"
+tokio = { version = "1.21.2", features = ["full"] }
