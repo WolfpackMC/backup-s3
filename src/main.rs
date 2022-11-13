@@ -57,6 +57,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if config["backups"]["max_backup_size"] != toml::Value::String("".to_string()) {
         unsafe {
             MAX_BACKUP_SIZE = config["backups"]["max_backup_size"].as_integer().unwrap();
+            println!("Max backup size: {} GB", MAX_BACKUP_SIZE / 1_000_000_000);
         }
     }
 
