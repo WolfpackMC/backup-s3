@@ -4,8 +4,6 @@ use aws_sdk_s3::model::Object;
 use aws_sdk_s3::types::{ByteStream};
 use directories::ProjectDirs;
 
-static mut MAX_BACKUP_SIZE: i64 = 5_000_000_000;
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let dir = ProjectDirs::from("com", "Wolfpack", "backup-s3").unwrap();
@@ -13,6 +11,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let config_file = config_dir.join("config.toml");
     let config_file_clone2 = config_file.clone();
     println!("Config file: {}", config_file.display());
+
+    let mut max_backup_size = 5_000_000_000;
 
     // Create directory if it doesn't exist
     if !config_dir.exists() {
@@ -55,10 +55,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     if config["backups"]["max_backup_size"] != toml::Value::String("".to_string()) {
-        unsafe {
-            MAX_BACKUP_SIZE = config["backups"]["max_backup_size"].as_integer().unwrap();
-            println!("Max backup size: {} GB", MAX_BACKUP_SIZE / 1_000_000_000);
-        }
+        max_backup_size = config["backups"]["max_backup_size"].as_integer().unwrap();
+        println!("Max backup size: {} GB", max_backup_size / 1_000_000_000);
     }
 
     if !std::path::Path::new(config["backups"]["backups_folder"].as_str().unwrap()).exists() {
@@ -136,7 +134,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     if saved_object.is_some() {
         let saved_object = saved_object.unwrap();
         println!("Oldest object: {:#?}", saved_object);
-        if cum_size > MAX_BACKUP_SIZE {
+        if cum_size > max_backup_size {
             println!("Cumulative size of backups is greater than the maximum allowed size, deleting oldest backup");
             // Delete the oldest backup
             let resp = client.delete_object()
